@@ -5,6 +5,10 @@ import { supabase } from '@/lib/supabase';
 const client = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.OPENROUTER_API_KEY || "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",
+  defaultHeaders: {
+    "HTTP-Referer": "https://inspire-vercel.vercel.app", // Optional. For logging and rate limits only.
+    "X-Title": "人类群星闪耀时", // Optional. Show in rankings on openrouter.ai.
+  },
 });
 
 // 从 Supabase 读取名人队列

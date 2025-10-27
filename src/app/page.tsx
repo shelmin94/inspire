@@ -1,4 +1,5 @@
 'use client';
+// Force Vercel to redeploy with latest code
 
 import { useState, useEffect } from 'react';
 import { QuoteCard } from '@/components/QuoteCard';

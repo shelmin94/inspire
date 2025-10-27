@@ -555,10 +555,11 @@ export async function POST(request: NextRequest) {
         background: quoteData.background,
         achievements: quoteData.achievements,
         timestamp: Date.now(),
-        index: -1
+        index: 0  // AI 生成的名言，不是从本地数据库
       };
 
       console.log('=== API请求成功 ===');
+      console.log('✅ AI 生成名言成功:', quote.author);
       console.log('最终返回结果:', quote);
       return NextResponse.json(quote);
     }

@@ -72,65 +72,65 @@ export default function Home() {
     return nextUpdate;
   };
 
-      // 生成名言
-      const generateQuote = async () => {
-        setLoading(true);
-        setError(null);
-        console.log('🔄 开始生成名言...');
+  // 生成名言
+  const generateQuote = async () => {
+    setLoading(true);
+    setError(null);
+    console.log('🔄 开始生成名言...');
+    
+    // 获取最新的已使用作者列表
+    const currentUsedAuthors = JSON.parse(localStorage.getItem('usedAuthors') || '[]');
+    console.log('📝 当前已使用作者列表:', currentUsedAuthors);
+    
+    try {
+      const response = await fetch('/api/generate-quote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          usedQuotes: currentUsedAuthors
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`生成名言失败: ${response.status} ${errorText}`);
+      }
+      
+      const quote = await response.json();
+      console.log('✅ 收到名言:', quote.author, '-', quote.quote);
+      
+      // 验证返回的数据完整性
+      if (!quote.quote || !quote.author || !quote.achievements) {
+        throw new Error('返回的名言数据不完整');
+      }
+      
+      setCurrentQuote(quote);
+      
+      // 将新名言的作者添加到已使用列表
+      if (!currentUsedAuthors.includes(quote.author)) {
+        const newUsedAuthors = [...currentUsedAuthors, quote.author];
+        setUsedAuthors(newUsedAuthors);
+        console.log('📝 更新已使用作者列表:', newUsedAuthors);
         
-        // 获取最新的已使用作者列表
-        const currentUsedAuthors = JSON.parse(localStorage.getItem('usedAuthors') || '[]');
-        console.log('📝 当前已使用作者列表:', currentUsedAuthors);
-        
-        try {
-          const response = await fetch('/api/generate-quote', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              usedQuotes: currentUsedAuthors
-            }),
-          });
-          
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`生成名言失败: ${response.status} ${errorText}`);
-          }
-          
-          const quote = await response.json();
-          console.log('✅ 收到名言:', quote.author, '-', quote.quote);
-          
-          // 验证返回的数据完整性
-          if (!quote.quote || !quote.author || !quote.achievements) {
-            throw new Error('返回的名言数据不完整');
-          }
-          
-          setCurrentQuote(quote);
-          
-          // 将新名言的作者添加到已使用列表
-          if (!currentUsedAuthors.includes(quote.author)) {
-            const newUsedAuthors = [...currentUsedAuthors, quote.author];
-            setUsedAuthors(newUsedAuthors);
-            console.log('📝 更新已使用作者列表:', newUsedAuthors);
-            
-            // 保存到localStorage
-            localStorage.setItem('usedAuthors', JSON.stringify(newUsedAuthors));
-          }
-          
-          // 保存到localStorage
-          localStorage.setItem('currentQuote', JSON.stringify(quote));
-          localStorage.setItem('lastUpdate', Date.now().toString());
-          console.log('💾 名言已保存到localStorage');
-          
-        } catch (error) {
-          console.error('❌ 生成名言时出错:', error);
-          setError(error instanceof Error ? error.message : '生成名言时发生未知错误');
-        } finally {
-          setLoading(false);
-          console.log('🏁 生成名言完成');
-        }
-      };
+        // 保存到localStorage
+        localStorage.setItem('usedAuthors', JSON.stringify(newUsedAuthors));
+      }
+      
+      // 保存到localStorage
+      localStorage.setItem('currentQuote', JSON.stringify(quote));
+      localStorage.setItem('lastUpdate', Date.now().toString());
+      console.log('💾 名言已保存到localStorage');
+      
+    } catch (error) {
+      console.error('❌ 生成名言时出错:', error);
+      setError(error instanceof Error ? error.message : '生成名言时发生未知错误');
+    } finally {
+      setLoading(false);
+      console.log('🏁 生成名言完成');
+    }
+  };
 
   // 初始化
   useEffect(() => {

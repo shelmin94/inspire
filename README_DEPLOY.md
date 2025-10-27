@@ -63,8 +63,8 @@ ON CONFLICT (id) DO NOTHING;
 ### 3. 获取 API 密钥
 1. 点击左侧菜单 "Settings" → "API"
 2. 复制并保存：
-   - **Project URL**：类似 `https://xxxxx.supabase.co`
-   - **anon public** key：以 `eyJ...` 开头
+   - **Project URL**：https://fdcvhljebxmbystscrwl.supabase.co
+   - **anon public** key：eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkY3ZobGplYnhtYnlzdHNjcndsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1MzUwMDUsImV4cCI6MjA3NzExMTAwNX0.0UzbJ5vgGD40ZerqtIRQ05QQekOv_siuCS_c3VnA0aY
 
 ## 🌐 第二步：部署到 Vercel
 

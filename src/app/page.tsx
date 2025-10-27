@@ -23,13 +23,6 @@ export default function Home() {
   const [usedAuthors, setUsedAuthors] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // 根据名言内容找到对应的索引
-  const findQuoteIndex = (quote: Quote): number => {
-    // 这里需要访问API中的名言数据库，我们通过API返回的索引来记录
-    // 暂时返回-1，让API处理
-    return -1;
-  };
-
   // 检查是否需要生成新的名言
   const shouldGenerateNewQuote = () => {
     const now = new Date();
@@ -185,7 +178,7 @@ export default function Home() {
     }, 60000); // 每分钟检查一次
     
     return () => clearInterval(interval);
-  }, []);
+  }, [usedAuthors]);
 
       return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">

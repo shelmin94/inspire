@@ -242,7 +242,13 @@ async function getBatchCelebrities(usedCelebrities: string[]): Promise<string[]>
 }
 
 // 获取单个名人的名言
-async function getCelebrityQuote(celebrity: string): Promise<any> {
+async function getCelebrityQuote(celebrity: string): Promise<{
+  quote: string;
+  context: string;
+  background: string;
+  achievements: string;
+  author: string;
+}> {
   console.log(`--- 获取${celebrity}的名言 ---`);
   
   try {
@@ -288,7 +294,7 @@ async function getCelebrityQuote(celebrity: string): Promise<any> {
       
       const jsonMatches = cleanedResponse.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g);
       if (jsonMatches && jsonMatches.length > 0) {
-        let jsonStr = jsonMatches[0];
+        const jsonStr = jsonMatches[0];
         const quoteData = JSON.parse(jsonStr);
         quoteData.author = celebrity;
         

@@ -35,8 +35,8 @@ export function QuoteCard({ quote }: QuoteCardProps) {
                </div>
         </div>
         <blockquote className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-gray-800 leading-relaxed mb-2 sm:mb-3 md:mb-4 px-1 sm:px-2 relative" id="quote-content">
-          <div className="absolute -left-1 sm:-left-2 -top-1 sm:-top-2 text-green-400 text-2xl sm:text-3xl md:text-4xl opacity-20" aria-hidden="true">"</div>
-          <div className="absolute -right-1 sm:-right-2 -bottom-1 sm:-bottom-2 text-green-400 text-2xl sm:text-3xl md:text-4xl opacity-20" aria-hidden="true">"</div>
+          <div className="absolute -left-1 sm:-left-2 -top-1 sm:-top-2 text-green-400 text-2xl sm:text-3xl md:text-4xl opacity-20" aria-hidden="true">&quot;</div>
+          <div className="absolute -right-1 sm:-right-2 -bottom-1 sm:-bottom-2 text-green-400 text-2xl sm:text-3xl md:text-4xl opacity-20" aria-hidden="true">&quot;</div>
           「{quote.quote}」
         </blockquote>
         <cite className="text-sm sm:text-base md:text-lg text-gray-600 font-medium flex items-center justify-center gap-1 sm:gap-2">

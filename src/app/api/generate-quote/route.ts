@@ -9,6 +9,11 @@ const client = new OpenAI({
 
 // 从 Supabase 读取名人队列
 async function getCelebritiesQueue(): Promise<string[]> {
+  if (!supabase) {
+    console.error('❌ Supabase 客户端未初始化，环境变量缺失');
+    return [];
+  }
+  
   try {
     const { data, error } = await supabase
       .from('celebrities_queue')
@@ -29,6 +34,11 @@ async function getCelebritiesQueue(): Promise<string[]> {
 
 // 保存名人队列到 Supabase
 async function saveCelebritiesQueue(queue: string[]): Promise<void> {
+  if (!supabase) {
+    console.error('❌ Supabase 客户端未初始化，无法保存队列');
+    return;
+  }
+  
   try {
     const { error } = await supabase
       .from('celebrities_queue')
@@ -44,6 +54,11 @@ async function saveCelebritiesQueue(queue: string[]): Promise<void> {
 
 // 从 Supabase 读取已使用名人列表
 async function getUsedCelebrities(): Promise<string[]> {
+  if (!supabase) {
+    console.error('❌ Supabase 客户端未初始化，无法读取已使用名人');
+    return [];
+  }
+  
   try {
     const { data, error } = await supabase
       .from('used_celebrities')
@@ -64,6 +79,11 @@ async function getUsedCelebrities(): Promise<string[]> {
 
 // 添加已使用名人对 Supabase
 async function addUsedCelebrity(celebrity: string): Promise<void> {
+  if (!supabase) {
+    console.error('❌ Supabase 客户端未初始化，无法添加已使用名人');
+    return;
+  }
+  
   try {
     const { error } = await supabase
       .from('used_celebrities')

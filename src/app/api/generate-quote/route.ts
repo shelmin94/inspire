@@ -156,11 +156,6 @@ async function getBatchCelebrities(usedCelebrities: string[]): Promise<string[]>
   
   try {
     const completion = await client.chat.completions.create({
-      extra_headers: {
-        "HTTP-Referer": "http://localhost:3000",
-               "X-Title": "人类群星闪耀时网站",
-      },
-      extra_body: {},
       model: "deepseek/deepseek-chat-v3.1",
       messages: [
         {
@@ -253,11 +248,6 @@ async function getCelebrityQuote(celebrity: string): Promise<{
   
   try {
     const completion = await client.chat.completions.create({
-      extra_headers: {
-        "HTTP-Referer": "http://localhost:3000",
-               "X-Title": "人类群星闪耀时网站",
-      },
-      extra_body: {},
       model: "deepseek/deepseek-chat-v3.1",
       messages: [
         {

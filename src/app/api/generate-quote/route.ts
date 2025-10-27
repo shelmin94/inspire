@@ -470,6 +470,11 @@ export async function POST(request: NextRequest) {
     
     // 从队列中取出第一个名人
     const selectedCelebrity = celebritiesQueue.shift();
+    
+    if (!selectedCelebrity) {
+      throw new Error('名人队列为空');
+    }
+    
     await saveCelebritiesQueue(celebritiesQueue);
     console.log(`选择名人: ${selectedCelebrity}`);
     

@@ -100,6 +100,7 @@ export default function Home() {
       
       const quote = await response.json();
       console.log('✅ 收到名言:', quote.author, '-', quote.quote);
+      console.log('📋 名言数据来源: index =', quote.index, '(index=-1表示备用方案)');
       
       // 验证返回的数据完整性
       if (!quote.quote || !quote.author || !quote.achievements) {

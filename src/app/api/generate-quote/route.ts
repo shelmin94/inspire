@@ -178,7 +178,10 @@ async function getBatchCelebrities(usedCelebrities: string[]): Promise<string[]>
       max_tokens: 2000
     });
 
-    const response = completion.choices[0].message.content.trim();
+    const response = completion.choices[0]?.message?.content?.trim();
+    if (!response) {
+      throw new Error('AI返回内容为空');
+    }
     console.log('AI返回的名人列表:', response);
     
     // 解析JSON数组
@@ -274,7 +277,10 @@ async function getCelebrityQuote(celebrity: string): Promise<{
       max_tokens: 800
     });
 
-    const response = completion.choices[0].message.content;
+    const response = completion.choices[0]?.message?.content;
+    if (!response) {
+      throw new Error('AI返回内容为空');
+    }
     console.log('AI返回的名言:', response);
     
     // 解析JSON

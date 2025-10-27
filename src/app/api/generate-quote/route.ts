@@ -387,7 +387,7 @@ export async function POST(request: NextRequest) {
     console.log('服务器端已使用名人数量:', serverUsedCelebrities.length);
     
     // 合并客户端和服务器端的已使用名人列表
-    const allUsedCelebrities = [...new Set([...usedQuotesFromClient, ...serverUsedCelebrities])];
+    const allUsedCelebrities = Array.from(new Set([...usedQuotesFromClient, ...serverUsedCelebrities]));
     console.log('合并后已使用名人列表:', allUsedCelebrities);
     console.log('合并后已使用名人数量:', allUsedCelebrities.length);
     

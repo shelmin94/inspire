@@ -412,7 +412,8 @@ export async function POST(request: NextRequest) {
           console.log(`✅ 成功获取 ${celebritiesQueue.length} 个名人`);
           break;
         } catch (batchError) {
-          console.error(`❌ 批量获取名人失败 (尝试 ${batchAttemptCount}/${maxBatchAttempts}):`, batchError.message);
+          const errorMessage = batchError instanceof Error ? batchError.message : String(batchError);
+          console.error(`❌ 批量获取名人失败 (尝试 ${batchAttemptCount}/${maxBatchAttempts}):`, errorMessage);
           
           if (batchAttemptCount >= maxBatchAttempts) {
             console.log('❌ 批量获取名人达到最大重试次数，将使用备用方案');
@@ -491,7 +492,8 @@ export async function POST(request: NextRequest) {
         quoteData = await getCelebrityQuote(selectedCelebrity);
         break; // 成功获取，跳出循环
       } catch (quoteError) {
-        console.error(`❌ 获取名言失败 (尝试 ${quoteAttemptCount}/${maxQuoteAttempts}):`, quoteError.message);
+        const errorMessage = quoteError instanceof Error ? quoteError.message : String(quoteError);
+        console.error(`❌ 获取名言失败 (尝试 ${quoteAttemptCount}/${maxQuoteAttempts}):`, errorMessage);
         
         if (quoteAttemptCount >= maxQuoteAttempts) {
           console.log('❌ 获取名言达到最大重试次数');

@@ -153,8 +153,12 @@ function isDuplicateName(name1: string, name2: string): boolean {
 // 批量获取50个名人
 async function getBatchCelebrities(usedCelebrities: string[]): Promise<string[]> {
   console.log('=== 开始批量获取50个名人 ===');
+    console.log('API Key 存在:', !!process.env.OPENROUTER_API_KEY);
+    console.log('OpenRouter API URL:', "https://openrouter.ai/api/v1");
+    console.log('已使用名人数量:', usedCelebrities.length);
   
   try {
+    console.log('📡 正在调用 OpenRouter API 批量获取名人...');
     const completion = await client.chat.completions.create({
       model: "deepseek/deepseek-chat-v3.1",
       messages: [
@@ -182,6 +186,7 @@ async function getBatchCelebrities(usedCelebrities: string[]): Promise<string[]>
     if (!response) {
       throw new Error('AI返回内容为空');
     }
+    console.log('✅ AI API 调用成功，返回名人列表');
     console.log('AI返回的名人列表:', response);
     
     // 解析JSON数组
@@ -234,7 +239,12 @@ async function getBatchCelebrities(usedCelebrities: string[]): Promise<string[]>
     return validCelebrities;
     
   } catch (error) {
-    console.error('批量获取名人失败:', error);
+    console.error('❌ 批量获取名人失败:');
+    console.error('错误类型:', error?.constructor?.name);
+    console.error('错误信息:', error instanceof Error ? error.message : String(error));
+    if (error instanceof Error && error.stack) {
+      console.error('错误堆栈:', error.stack);
+    }
     throw error;
   }
 }
@@ -248,6 +258,7 @@ async function getCelebrityQuote(celebrity: string): Promise<{
   author: string;
 }> {
   console.log(`--- 获取${celebrity}的名言 ---`);
+  console.log('📡 正在调用 OpenRouter API 获取名言...');
   
   try {
     const completion = await client.chat.completions.create({

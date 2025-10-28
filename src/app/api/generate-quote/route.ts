@@ -4,9 +4,9 @@ import { supabase } from '@/lib/supabase';
 
 const client = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY || "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",
+  apiKey: process.env.OPENROUTER_API_KEY,
   defaultHeaders: {
-    "HTTP-Referer": "https://inspire-vercel.vercel.app", // Optional. For logging and rate limits only.
+    "HTTP-Referer": process.env.NEXT_PUBLIC_SITE_URL || "https://inspire-vercel.vercel.app", // Optional. For logging and rate limits only.
     "X-Title": "Stars of Humanity", // Optional. Show in rankings on openrouter.ai.
   },
 });
@@ -407,7 +407,12 @@ function getRandomQuote(usedQuotesFromClient: string[] = []): typeof quotesDatab
   return availableQuotes[randomIndex];
 }
 
+// 增加超时时间的中间件
+const MAX_DURATION = 60; // 60秒
+
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     // 获取请求体中的已使用名言信息
     const body = await request.json();
@@ -415,6 +420,9 @@ export async function POST(request: NextRequest) {
     
     console.log('=== API请求开始 ===');
     console.log('请求时间:', new Date().toISOString());
+    console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '已配置' : '未配置');
+    console.log('Supabase Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '已配置' : '未配置');
+    console.log('OpenRouter Key:', process.env.OPENROUTER_API_KEY ? '已配置' : '未配置');
     
     // 获取服务器端已使用名人列表
     const serverUsedCelebrities = await getUsedCelebrities();
@@ -617,7 +625,14 @@ export async function POST(request: NextRequest) {
       index: -1
     };
     
-    console.log('使用最终备用方案:', fallbackQuote);
-    return NextResponse.json(fallbackQuote);
+      console.log('使用最终备用方案:', fallbackQuote);
+      return NextResponse.json(fallbackQuote);
+  } finally {
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    if (duration > 10000) {
+      console.warn(`⚠️ API 执行时间较长: ${duration}ms`);
+    }
+    console.log(`=== API请求结束（总耗时: ${duration}ms） ===`);
   }
 }

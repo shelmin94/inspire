@@ -1,7 +1,7 @@
 'use client';
 // Force Vercel to redeploy with latest code
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { QuoteCard } from '@/components/QuoteCard';
 import { TimeDisplay } from '@/components/TimeDisplay';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -21,8 +21,9 @@ export default function Home() {
   const [currentQuote, setCurrentQuote] = useState<Quote | null>(null);
   const [loading, setLoading] = useState(false);
   const [nextUpdate, setNextUpdate] = useState<Date | null>(null);
-  const [usedAuthors, setUsedAuthors] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const isInitializedRef = useRef(false);
+  const lastRequestTimeRef = useRef(0);
 
   // 检查是否需要生成新的名言
   const shouldGenerateNewQuote = () => {
@@ -74,9 +75,17 @@ export default function Home() {
   };
 
   // 生成名言
-  const generateQuote = async () => {
+  const generateQuote = useCallback(async () => {
+    // 防止重复请求：5秒内不重复请求
+    const now = Date.now();
+    if (now - lastRequestTimeRef.current < 5000) {
+      console.log('⏸️ 防抖：5秒内不重复请求');
+      return;
+    }
+    
     setLoading(true);
     setError(null);
+    lastRequestTimeRef.current = now;
     console.log('🔄 开始生成名言...');
     
     // 获取最新的已使用作者列表
@@ -84,6 +93,10 @@ export default function Home() {
     console.log('📝 当前已使用作者列表:', currentUsedAuthors);
     
     try {
+      // 创建带超时的 AbortController
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒超时
+      
       const response = await fetch('/api/generate-quote', {
         method: 'POST',
         headers: {
@@ -92,7 +105,10 @@ export default function Home() {
         body: JSON.stringify({
           usedQuotes: currentUsedAuthors
         }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -113,10 +129,10 @@ export default function Home() {
       // 将新名言的作者添加到已使用列表
       if (!currentUsedAuthors.includes(quote.author)) {
         const newUsedAuthors = [...currentUsedAuthors, quote.author];
-        setUsedAuthors(newUsedAuthors);
+        // 注意：不要在这里调用 setUsedAuthors，避免触发渲染
         console.log('📝 更新已使用作者列表:', newUsedAuthors);
         
-        // 保存到localStorage
+        // 只保存到localStorage
         localStorage.setItem('usedAuthors', JSON.stringify(newUsedAuthors));
       }
       
@@ -127,21 +143,36 @@ export default function Home() {
       
     } catch (error) {
       console.error('❌ 生成名言时出错:', error);
-      setError(error instanceof Error ? error.message : '生成名言时发生未知错误');
+      
+      // 提供更友好的错误信息
+      let errorMessage = '生成名言时发生未知错误';
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = '请求超时，请检查网络连接或稍后重试';
+        } else if (error.message === 'Failed to fetch') {
+          errorMessage = '网络请求失败，请检查网络连接或服务是否正常运行';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
       console.log('🏁 生成名言完成');
     }
-  };
+  }, []); // useCallback 依赖数组
 
   // 初始化
   useEffect(() => {
     const initializeApp = () => {
-      // 加载已使用的作者列表
-      const storedUsedAuthors = localStorage.getItem('usedAuthors');
-      if (storedUsedAuthors) {
-        setUsedAuthors(JSON.parse(storedUsedAuthors));
+      // 防止重复初始化
+      if (isInitializedRef.current) {
+        console.log('⏸️ 已经初始化，跳过');
+        return;
       }
+      
+      // 不再使用 usedAuthors 状态，直接从 localStorage 读取
       
       const storedQuote = localStorage.getItem('currentQuote');
       const lastUpdate = localStorage.getItem('lastUpdate');
@@ -157,9 +188,10 @@ export default function Home() {
         } else {
           const quote = JSON.parse(storedQuote);
           setCurrentQuote(quote);
-          // 将当前名言的作者也添加到已使用列表
-          if (!usedAuthors.includes(quote.author)) {
-            setUsedAuthors(prev => [...prev, quote.author]);
+          // 将当前名言的作者也添加到已使用列表（只更新localStorage）
+          const currentUsedAuthors = JSON.parse(localStorage.getItem('usedAuthors') || '[]');
+          if (!currentUsedAuthors.includes(quote.author)) {
+            localStorage.setItem('usedAuthors', JSON.stringify([...currentUsedAuthors, quote.author]));
           }
         }
       } else {
@@ -167,6 +199,7 @@ export default function Home() {
       }
       
       setNextUpdate(calculateNextUpdate());
+      isInitializedRef.current = true;
     };
 
     initializeApp();
@@ -180,7 +213,7 @@ export default function Home() {
     }, 60000); // 每分钟检查一次
     
     return () => clearInterval(interval);
-  }, [usedAuthors]);
+  }, []); // 空依赖数组，只运行一次
 
       return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -283,7 +316,10 @@ export default function Home() {
                 )}
               </button>
               <p className="text-gray-400 text-xs mt-2" id="button-description">
-                {usedAuthors.length > 0 && `已使用 ${usedAuthors.length} 位名人`}
+                {(() => {
+                  const used = JSON.parse(localStorage.getItem('usedAuthors') || '[]');
+                  return used.length > 0 && `已使用 ${used.length} 位名人`;
+                })()}
               </p>
               <p className="text-gray-300 text-xs mt-1">
                 点击获取AI生成的全新精神激励名言

@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "src/app/api/generate-quote/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
+
+
